@@ -1,0 +1,44 @@
+plugins {
+    id "org.springframework.boot" version "2.2.6.RELEASE"
+    id "io.spring.dependency-management" version "1.0.9.RELEASE"
+    id "java"
+    id "idea"
+    id "groovy"
+    id "io.freefair.lombok" version "5.0.0-rc6"
+    id "com.palantir.docker" version "0.25.0"
+    id "com.palantir.docker-run" version "0.25.0"
+}
+
+group = "com.dispassionproject"
+version = "0.0.1-SNAPSHOT"
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+def fakerVersion = "1.0.2"
+def groovyVersion = "2.5.8"
+def spockVersion = "2.0-M1-groovy-2.5"
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+
+    testImplementation "com.github.javafaker:javafaker:${fakerVersion}"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+    }
+
+    // needed for spock
+    implementation "org.codehaus.groovy:groovy-all:${groovyVersion}"
+    testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+    testImplementation "org.spockframework:spock-core"
+    testImplementation "org.spockframework:spock-spring"
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
