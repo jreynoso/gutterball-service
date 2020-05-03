@@ -9,8 +9,7 @@ class GameControllerSpec extends BaseIntSpec {
 
     def "should setup and start a new game with players"() {
         given:
-        def playerOneName = aRandom.playerName()
-        def playerTwoName = aRandom.playerName()
+        def playerNames = aRandom.playerNameSet(2)
 
         when:
         def game = createGame()
@@ -21,14 +20,14 @@ class GameControllerSpec extends BaseIntSpec {
 
         when:
         def gameId = game.id
-        def playerOne = createPlayer(gameId, playerOneName)
-        def playerTwo = createPlayer(gameId, playerTwoName)
+        def playerOne = createPlayer(gameId, playerNames[0])
+        def playerTwo = createPlayer(gameId, playerNames[1])
 
         then:
         playerOne.id
-        playerOne.name == playerOneName
+        playerOne.name == playerNames[0]
         playerTwo.id
-        playerTwo.name == playerTwoName
+        playerTwo.name == playerNames[1]
 
         when:
         def gameWithPlayers = getGame(gameId)
