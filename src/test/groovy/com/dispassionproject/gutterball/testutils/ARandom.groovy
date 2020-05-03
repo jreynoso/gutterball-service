@@ -26,4 +26,8 @@ class ARandom {
         UUID.fromString(faker.internet().uuid())
     }
 
+    def pins(int max = 10) {
+        faker.number().numberBetween(0, max)
+    }
+
 }

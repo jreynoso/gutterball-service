@@ -72,6 +72,18 @@ class BaseIntSpec extends BaseSpec {
         responseToGame(result.getResponse())
     }
 
+    def bowl(UUID gameId, UUID playerId, int pins, ResultMatcher expectedStatus = status().isOk()) {
+        MvcResult result = mvc.perform(post("/game/${gameId}/player/${playerId}/bowl")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(String.valueOf(pins))
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(expectedStatus)
+                .andReturn()
+
+        responseToGame(result.getResponse())
+    }
+
     def responseToGame(MockHttpServletResponse response) {
         isSuccessResponse(response) ? objectMapper.readValue(response.getContentAsByteArray(), Game) : null
     }
