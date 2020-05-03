@@ -74,7 +74,9 @@ public class GameController {
                 .name(playerName)
                 .build();
         game.getPlayers().add(player);
-        game.setStatus(GameStatus.READY);
+        if (game.getStatus() == GameStatus.PENDING) {
+            game.setStatus(GameStatus.READY);
+        }
 
         return player;
     }

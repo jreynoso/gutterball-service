@@ -7,8 +7,8 @@ class GameControllerSpec extends BaseIntSpec {
 
     def "should setup and start a new game with players"() {
         given:
-        def playerOneName = aRandom.player()
-        def playerTwoName = aRandom.player()
+        def playerOneName = aRandom.playerName()
+        def playerTwoName = aRandom.playerName()
 
         when:
         def game = createGame()

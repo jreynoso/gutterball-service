@@ -6,7 +6,7 @@ class ARandom {
 
     Faker faker = new Faker()
 
-    def player() {
+    def playerName() {
         faker.witcher().character()
     }
 
