@@ -1,20 +1,15 @@
 package com.dispassionproject.gutterball
 
-import com.github.javafaker.Faker
-import spock.lang.Specification
-import spock.lang.Unroll
+import org.springframework.beans.factory.annotation.Autowired
 
-@Unroll
-class GutterballApplicationSpec extends Specification {
+class GutterballApplicationSpec extends BaseIntSpec {
 
-    Faker faker = Faker.instance()
+    @Autowired
+    GameController gameController
 
-    def "should test a thing"() {
-        given:
-        def thing = faker.witcher().character()
-
+    def "should load application context"() {
         expect:
-        thing
+        gameController
     }
 
 }

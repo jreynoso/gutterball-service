@@ -43,8 +43,10 @@ POST /game/{id}/start
 POST /game/{id}/player/{id}/roll
 ```
 
-Return a list of dining options that match the request criteria.
-
 ### Roadmap
-- deploy to google cloud
+- implement bowling game
+- add error handling
+- refactor to service
+- add persistence
+- add logging
 - separate configuration for integration tests
