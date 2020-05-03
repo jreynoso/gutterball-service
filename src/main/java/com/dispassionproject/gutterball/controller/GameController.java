@@ -3,6 +3,9 @@ package com.dispassionproject.gutterball.controller;
 import com.dispassionproject.gutterball.api.Game;
 import com.dispassionproject.gutterball.api.GameStatus;
 import com.dispassionproject.gutterball.api.Player;
+import com.dispassionproject.gutterball.exception.GameNotFoundException;
+import com.dispassionproject.gutterball.exception.GamePlayException;
+import com.dispassionproject.gutterball.exception.GameSetupException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +36,7 @@ public class GameController {
     public Game getGame(@PathVariable final UUID id) {
         Game game = games.get(id);
         if (game == null) {
-            throw new IllegalArgumentException(String.format("Game not found: gameId=%s.", id));
+            throw new GameNotFoundException(id);
         }
         return game;
     }
@@ -42,10 +45,10 @@ public class GameController {
     public Game startGame(@PathVariable final UUID id) {
         final Game game = games.get(id);
         if (game == null) {
-            throw new IllegalArgumentException(String.format("Game cannot be started: gameId=%s not found.", id));
+            throw new GameNotFoundException(id, "Unknown game cannot be started");
         }
         if (game.getStatus() != GameStatus.READY) {
-            throw new IllegalArgumentException(String.format("Game cannot be started: status=%s.", game.getStatus()));
+            throw new GameSetupException(game, "Game cannot be started");
         }
         game.setStatus(GameStatus.STARTED);
         game.setNextPlayer(game.getPlayers().get(0).getId());
@@ -57,18 +60,19 @@ public class GameController {
     public Player createPlayer(@PathVariable final UUID id, @RequestBody final String playerName) {
         final Game game = games.get(id);
         if (game == null) {
-            throw new IllegalArgumentException(String.format("Player cannot be created: gameId=%s not found.", id));
+            throw new GameNotFoundException(id, "Player cannot be created for unknown game");
         }
-        if (game.getStatus() == GameStatus.STARTED || game.getStatus() == GameStatus.COMPLETED) {
-            throw new IllegalArgumentException(String.format("Player cannot be created: status=%s.", game.getStatus()));
+        if (game.getStatus() == GameStatus.STARTED) {
+            throw new GamePlayException(game, "Game has already started");
         }
-        if (game.getPlayers().size() > 4) {
-            throw new IllegalArgumentException("Player cannot be created: game is full.");
+        if (game.getStatus() == GameStatus.COMPLETED) {
+            throw new GamePlayException(game, "Game is over");
+        }
+        if (game.getPlayers().size() == 4) {
+            throw new GameSetupException(game, "Game is full");
         }
         if (game.getPlayers().stream().anyMatch(player1 -> player1.getName().equals(playerName))) {
-            throw new IllegalArgumentException(
-                    String.format("Player cannot be created: playerName=%s already exists.", playerName)
-            );
+            throw new GameSetupException(game, String.format("Player %s already exists", playerName));
         }
         final Player player = Player.builder()
                 .name(playerName)

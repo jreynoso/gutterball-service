@@ -24,4 +24,11 @@ public class Game {
     private int currentFrame = 1;
     private UUID nextPlayer;
 
+    public String dumpGameState() {
+        return String.format(
+                "gameId=%s, status=%s, playerCount=%d, currentFrame=%d, nextPlayer=%s",
+                id, status, players.size(), currentFrame, nextPlayer
+        );
+    }
+
 }

@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultMatcher
 
+import javax.servlet.http.HttpServletResponse
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
@@ -71,11 +73,15 @@ class BaseIntSpec extends BaseSpec {
     }
 
     def responseToGame(MockHttpServletResponse response) {
-        objectMapper.readValue(response.getContentAsByteArray(), Game)
+        isSuccessResponse(response) ? objectMapper.readValue(response.getContentAsByteArray(), Game) : null
     }
 
     def responseToPlayer(MockHttpServletResponse response) {
-        objectMapper.readValue(response.getContentAsByteArray(), Player)
+        isSuccessResponse(response) ? objectMapper.readValue(response.getContentAsByteArray(), Player) : null
+    }
+
+    def isSuccessResponse(MockHttpServletResponse response) {
+        response.status == HttpServletResponse.SC_OK || response.status == HttpServletResponse.SC_CREATED
     }
 
 }
