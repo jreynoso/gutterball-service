@@ -10,4 +10,20 @@ class ARandom {
         faker.witcher().character()
     }
 
+    def playerNameSet(int count = 4) {
+        def names = [] as Set<String>
+        while (names.size() < count) {
+            names << playerName()
+        }
+        names
+    }
+
+    def gameId() {
+        UUID.fromString(faker.internet().uuid())
+    }
+
+    def playerId() {
+        UUID.fromString(faker.internet().uuid())
+    }
+
 }
