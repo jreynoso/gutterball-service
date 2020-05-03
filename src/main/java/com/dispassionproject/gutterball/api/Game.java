@@ -22,7 +22,8 @@ public class Game {
     private List<Player> players = new ArrayList<>();
     @Builder.Default
     private int currentFrame = 1;
-    private UUID nextPlayer;
+    @Builder.Default
+    private int nextPlayer = 1;
 
     public String dumpGameState() {
         return String.format(

@@ -32,20 +32,19 @@ By default, the service will run on port 8080
 ```
 # Setup
 POST /game
-GET  /game/{id}
-POST /game/{id}/player
-GET  /game/{id}/player/{id}
+GET  /game/{gameId}
+POST /game/{gameId}/player
+GET  /game/{gameId}/player/{playerId}
 
 # Start
-POST /game/{id}/start
+POST /game/{gameId}/start
 
 # Play
-POST /game/{id}/player/{id}/roll
+POST /game/{gameId}/player/{playerId}/bowl
 ```
 
 ### Roadmap
 - implement bowling game
-- add error handling
 - refactor to service
 - add persistence
 - add logging

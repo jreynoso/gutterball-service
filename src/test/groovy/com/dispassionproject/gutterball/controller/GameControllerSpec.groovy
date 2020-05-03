@@ -47,7 +47,7 @@ class GameControllerSpec extends BaseIntSpec {
         then:
         startedGame.id == gameWithPlayers.id
         startedGame.status == GameStatus.STARTED
-        startedGame.nextPlayer == playerOne.id
+        startedGame.nextPlayer == 1
         startedGame.currentFrame == 1
         gameWithPlayers.players.size() == 2
     }

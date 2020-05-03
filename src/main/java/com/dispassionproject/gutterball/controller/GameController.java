@@ -51,7 +51,7 @@ public class GameController {
             throw new GameSetupException(game, "Game cannot be started");
         }
         game.setStatus(GameStatus.STARTED);
-        game.setNextPlayer(game.getPlayers().get(0).getId());
+        game.setNextPlayer(1);
         return game;
     }
 
