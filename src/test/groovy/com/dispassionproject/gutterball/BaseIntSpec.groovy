@@ -1,5 +1,7 @@
 package com.dispassionproject.gutterball
 
+import com.dispassionproject.gutterball.api.Game
+import com.dispassionproject.gutterball.api.Player
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc

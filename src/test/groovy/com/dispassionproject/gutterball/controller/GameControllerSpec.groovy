@@ -1,6 +1,7 @@
 package com.dispassionproject.gutterball.controller
 
 import com.dispassionproject.gutterball.BaseIntSpec
+import com.dispassionproject.gutterball.api.GameStatus
 
 class GameControllerSpec extends BaseIntSpec {
 
