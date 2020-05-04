@@ -29,7 +29,7 @@ public class Frame {
             rolls.add(pins);
             if (pins == 10) {
                 type = FrameType.STRIKE;
-            } else if (rolls.size() == 2 && rolls.get(0) + rolls.get(1) == 10) {
+            } else if (rolls.size() == 2 && getPins(1) + getPins(2) == 10) {
                 type = FrameType.SPARE;
             }
         } else {
@@ -45,8 +45,8 @@ public class Frame {
     }
 
     public void finalizeFrame() {
-        int extraRoll =  rolls.size() == 3 ? rolls.get(2) : 0;
-        score = rolls.get(0) + rolls.get(1) + extraRoll;
+        int extraRoll =  rolls.size() == 3 ? getPins(3) : 0;
+        score = getPins(1) + getPins(2) + extraRoll;
     }
 
     public void finalizeSpare(final int nextPins) {
