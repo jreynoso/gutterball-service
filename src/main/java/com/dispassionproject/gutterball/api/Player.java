@@ -39,92 +39,77 @@ public class Player {
     }
 
     public void updateScore(final int frameNo) {
-        final Frame frame = getFrame(frameNo);
-        final int rollCount = frame.getRolls().size();
+        updateFrameScores(frameNo);
+        updatePlayerScore();
+    }
 
-        Frame prevFrame = null;
-        if (frameNo > 1) {
-            prevFrame = getFrame(frameNo - 1);
-        }
+    private void updateFrameScores(final int frameNo) {
+        final boolean isFinalFrame = frameNo == 10;
 
-        if (frameNo < 10) {
-            if (frame.getType() == FrameType.NORMAL) {
-                if (rollCount == 1) {
-                    // if prev frame is spare, finalize it
-                    if (prevFrame != null && prevFrame.getType() == FrameType.SPARE) {
-                        prevFrame.finalizeSpare(frame.getPins(1));
-                    } else if (prevFrame != null && prevFrame.getType() == FrameType.STRIKE && frameNo > 2) {
-                        Frame twoFramesBack = getFrame(frameNo - 2);
-                        if (twoFramesBack.getType() == FrameType.STRIKE) {
-                            twoFramesBack.finalizeStrike(10, 10);
-                        }
-                    }
-                } else if (rollCount == 2) {
-                    // if previous is strike, finalize it
-                    if (prevFrame != null && prevFrame.getType() == FrameType.STRIKE) {
-                        prevFrame.finalizeStrike(frame.getPins(1), frame.getPins(2));
-                    }
-                    frame.finalizeFrame();
-                }
-            } else if (frame.getType() == FrameType.STRIKE) {
-                // if prev frame is spare, finalize it
-                if (prevFrame != null && prevFrame.getType() == FrameType.SPARE) {
-                    prevFrame.finalizeSpare(10);
-                } else if (prevFrame != null && prevFrame.getType() == FrameType.STRIKE) {
-                    if (frameNo > 2) {
-                        Frame twoFramesBack = getFrame(frameNo - 2);
-                        if (twoFramesBack.getType() == FrameType.STRIKE) {
-                            twoFramesBack.finalizeStrike(10, 10);
-                        }
-                    }
-                }
-            }
-        } else {
-            if (frame.getType() == FrameType.NORMAL) {
-                if (rollCount == 1) {
-                    // if prev frame is spare, finalize it
-                    if (prevFrame != null && prevFrame.getType() == FrameType.SPARE) {
-                        prevFrame.finalizeSpare(frame.getPins(1));
-                    }
-                } else if (rollCount == 2) {
-                    // if previous is strike, finalize it
-                    if (prevFrame != null && prevFrame.getType() == FrameType.STRIKE) {
-                        prevFrame.finalizeStrike(frame.getPins(1), frame.getPins(2));
-                    }
-                    frame.finalizeFrame();
-                }
-            } else if (frame.getType() == FrameType.SPARE) {
-                if (rollCount == 3) {
-                    frame.finalizeSpare(frame.getPins(3));
-                }
-            } else if (frame.getType() == FrameType.STRIKE) {
-                // if prev frame is spare, finalize it
-                if (rollCount == 1) {
-                    if (prevFrame.getType() == FrameType.SPARE) {
-                        prevFrame.finalizeSpare(10);
-                    } else if (prevFrame.getType() == FrameType.STRIKE) {
-                        Frame twoFramesBack = getFrame(frameNo - 2);
-                        if (twoFramesBack.getType() == FrameType.STRIKE) {
-                            twoFramesBack.finalizeStrike(10, 10);
-                        }
-                    }
-                } else if (rollCount == 2) {
-                    int pins = frame.getPins(2);
-                    if (pins == 10) {
-                        if (prevFrame.getType() == FrameType.STRIKE) {
-                            prevFrame.finalizeStrike(10, 10);
-                        }
-                    } else {
-                        if (prevFrame.getType() == FrameType.SPARE) {
-                            prevFrame.finalizeSpare(pins);
-                        }
-                    }
-                } else if (rollCount == 3) {
-                    frame.finalizeFrame();
-                }
-            }
+        if (isFinalFrame) {
+            scoreFinalFrame();
         }
+        else {
+            final Frame frame = getFrame(frameNo);
+            Frame prevFrame = null;
+            if (frameNo > 1) {
+                prevFrame = getFrame(frameNo - 1);
+            }
+            Frame twoFramesBack = null;
+            if (frameNo > 2) {
+                twoFramesBack = getFrame(frameNo - 2);
+            }
+
+            scoreFrame(twoFramesBack, prevFrame, frame);
+            scoreFrame(prevFrame, frame, null);
+            scoreFrame(frame, null, null);
+        }
+    }
+
+    private void updatePlayerScore() {
         score = frames.stream().map(Frame::getScore).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+    }
+
+    private void scoreFrame(final Frame frame, final Frame nextFrame1, final Frame nextFrame2) {
+        if (frame != null && frame.isComplete() && frame.isNotScored()) {
+            if (frame.getType() == FrameType.STRIKE) {
+                if (nextFrame1 != null) {
+                    if (nextFrame1.getType() != FrameType.STRIKE && nextFrame1.isComplete()) {
+                        frame.finalizeStrike(nextFrame1.getPins(1), nextFrame1.getPins(2));
+                    } else if (nextFrame1.getType() == FrameType.STRIKE && nextFrame2 != null) {
+                        frame.finalizeStrike(10, nextFrame2.getPins(1));
+                    }
+                }
+            } else if (frame.getType() == FrameType.SPARE && nextFrame1 != null) {
+                frame.finalizeSpare(nextFrame1.getPins(1));
+            } else if (frame.getType() == FrameType.NORMAL) {
+                frame.finalizeFrame();
+            }
+        }
+    }
+
+    private void scoreFinalFrame() {
+        final Frame eightFrame = getFrame(8);
+        final Frame ninthFrame = getFrame(9);
+        final Frame finalFrame = getFrame(10);
+        final int rollCount = finalFrame.getRolls().size();
+
+        if (eightFrame.isNotScored()) {
+            if (ninthFrame.isNotScored() && ninthFrame.getType() == FrameType.STRIKE) {
+                eightFrame.finalizeStrike(10, finalFrame.getPins(1));
+            }
+        }
+        if (ninthFrame.isNotScored()) {
+            if (ninthFrame.getType() == FrameType.SPARE) {
+                ninthFrame.finalizeSpare(finalFrame.getPins(1));
+            } else if (rollCount == 2) {
+                ninthFrame.finalizeStrike(finalFrame.getPins(1), finalFrame.getPins(2));
+            }
+        }
+        if (finalFrame.isComplete()) {
+            finalFrame.finalizeFrame();
+        }
+
     }
 
 }

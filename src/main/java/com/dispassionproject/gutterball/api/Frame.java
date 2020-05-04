@@ -29,9 +29,11 @@ public class Frame {
             rolls.add(pins);
             if (pins == 10) {
                 type = FrameType.STRIKE;
-            } else if (rolls.size() == 2 && rolls.stream().mapToInt(Integer::intValue).sum() == 10) {
+            } else if (rolls.size() == 2 && rolls.get(0) + rolls.get(1) == 10) {
                 type = FrameType.SPARE;
             }
+        } else {
+            throw new UnexpectedServiceException("Cannot add another roll to current frame.");
         }
     }
 
@@ -43,7 +45,8 @@ public class Frame {
     }
 
     public void finalizeFrame() {
-        score = rolls.stream().mapToInt(Integer::intValue).sum();
+        int extraRoll =  rolls.size() == 3 ? rolls.get(2) : 0;
+        score = rolls.get(0) + rolls.get(1) + extraRoll;
     }
 
     public void finalizeSpare(final int nextPins) {
@@ -66,6 +69,11 @@ public class Frame {
                 return number == 10 ? rollCount == 3 : rollCount == 1;
         }
         return false;
+    }
+
+    @JsonIgnore
+    public boolean isNotScored() {
+        return score == null;
     }
 
 }
