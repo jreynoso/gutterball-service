@@ -44,8 +44,7 @@ POST /game/{gameId}/player/{playerId}/bowl
 ```
 
 ### Roadmap
-- implement bowling game
 - refactor to service
 - add persistence
 - add logging
-- separate configuration for integration tests
+- add docs

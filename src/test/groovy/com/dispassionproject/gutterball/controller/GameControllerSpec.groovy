@@ -128,13 +128,13 @@ class GameControllerSpec extends BaseIntSpec {
     def "should return 403 when bowling out of turn"() {
         given:
         def game = setupAndStartGame(2)
-        def secondPlayer = game.getPlayer(2)
+        def playerTwo = game.getPlayer(2)
 
         expect:
         game.nextPlayer == 1
 
         when:
-        bowl(game.id, secondPlayer.id, aRandom.pins(), status().isForbidden())
+        bowl(game.id, playerTwo.id, aRandom.pins(), status().isForbidden())
 
         then:
         noExceptionThrown()
@@ -168,8 +168,10 @@ class GameControllerSpec extends BaseIntSpec {
         "3 consecutive Xs, then a 1_ frame"  | strikes(3) + [1, 0]             || GameStatus.STARTED   | 63            | 5
         "a gutterball game"                  | frames(10, 0)                   || GameStatus.COMPLETED | 0             | 10
         "all 1s game"                        | frames(10, 1)                   || GameStatus.COMPLETED | 20            | 10
+        "all spares, then a _"               | spares(10) + [0]                || GameStatus.COMPLETED | 127           | 10
+        "all spares, then a 1"               | spares(10) + [1]                || GameStatus.COMPLETED | 128           | 10
+        "all spares, then a X"               | spares(10) + [10]               || GameStatus.COMPLETED | 137           | 10
         "a perfect game"                     | strikes(12)                     || GameStatus.COMPLETED | 300           | 10
-
         "8 Xs, then a 3/, then _1 frame"     | strikes(8) + [3, 7, 0, 1]       || GameStatus.COMPLETED | 234           | 10
         "8 Xs, then a 3/, then 1_ frame"     | strikes(8) + [3, 7, 1, 0]       || GameStatus.COMPLETED | 235           | 10
         "8 Xs, then a 3/ and a 3/1 frame"    | strikes(8) + [3, 7, 3, 7, 1]    || GameStatus.COMPLETED | 247           | 10
@@ -177,7 +179,6 @@ class GameControllerSpec extends BaseIntSpec {
         "8 Xs, then a 3/ and a X3/ frame"    | strikes(8) + [3, 7, 10, 3, 7]   || GameStatus.COMPLETED | 263           | 10
         "8 Xs, then a 3/ and a XX1 frame"    | strikes(8) + [3, 7, 10, 10, 1]  || GameStatus.COMPLETED | 264           | 10
         "8 Xs, then a 3/ and a XXX frame"    | strikes(8) + [3, 7, 10, 10, 10] || GameStatus.COMPLETED | 273           | 10
-
         "9 consecutive Xs, then a _1 frame"  | strikes(9) + [0, 1]             || GameStatus.COMPLETED | 242           | 10
         "9 consecutive Xs, then a 1_ frame"  | strikes(9) + [1, 0]             || GameStatus.COMPLETED | 243           | 10
         "9 consecutive Xs, then a 3/_ frame" | strikes(9) + [3, 7, 0]          || GameStatus.COMPLETED | 263           | 10
@@ -187,6 +188,62 @@ class GameControllerSpec extends BaseIntSpec {
         "10 consecutive Xs, then a 3/ frame" | strikes(10) + [3, 7]            || GameStatus.COMPLETED | 283           | 10
         "10 consecutive Xs, then a _1 frame" | strikes(10) + [0, 1]            || GameStatus.COMPLETED | 271           | 10
         "10 consecutive Xs, then a 1_ frame" | strikes(10) + [1, 0]            || GameStatus.COMPLETED | 272           | 10
+    }
+
+    def "should allow players to bowl frames in turn"() {
+        given:
+        def game = setupAndStartGame(2)
+        def playerOne = game.getPlayer(1)
+        def playerTwo = game.getPlayer(2)
+
+        expect:
+        game.nextPlayer == 1
+
+        when:
+        bowl(game.id, playerOne.id, 6)
+        game = bowl(game.id, playerOne.id, 2)
+
+        then:
+        game.nextPlayer == 2
+
+        when:
+        game = bowl(game.id, playerTwo.id, 10)
+
+        then:
+        game.nextPlayer == 1
+    }
+
+    def "should 400 when bowling in a game that hasn't started"() {
+        given:
+        def game = setupPlayableGame()
+        def playerOne = game.getPlayer(1)
+
+        when:
+        bowl(game.id, playerOne.id, aRandom.pins(), status().isBadRequest())
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "should 400 when bowling in a game that is completed"() {
+        given:
+        def game = setupAndStartGame()
+        def playerOne = game.getPlayer(1)
+
+        and:
+        completeGame().each {
+            bowl(game.id, playerOne.id, it as int)
+        }
+        def endGame = getGame(game.id)
+
+        expect:
+        endGame.status == GameStatus.COMPLETED
+
+        when:
+        bowl(game.id, playerOne.id, aRandom.pins(), status().isBadRequest())
+
+        then:
+        noExceptionThrown()
     }
 
     def setupPlayableGame(int playerCount = 1) {
@@ -204,12 +261,29 @@ class GameControllerSpec extends BaseIntSpec {
         startGame(setupPlayableGame(playerCount).id)
     }
 
+    def completeGame() {
+        def rolls = []
+        9.times {
+            def frame = aRandom.frame()
+            rolls += frame
+        }
+        rolls += [8, 1]
+    }
+
     static def frames(int frames, int pins) {
         def rolls = []
         (2 * frames).times {
             rolls << pins
         }
         rolls
+    }
+
+    static def spares(int frames) {
+        def spares = []
+        frames.times {
+            spares += [3, 7]
+        }
+        spares
     }
 
     static def strikes(int frames) {

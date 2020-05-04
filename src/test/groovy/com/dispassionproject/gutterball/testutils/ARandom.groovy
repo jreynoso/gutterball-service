@@ -30,4 +30,9 @@ class ARandom {
         faker.number().numberBetween(0, max)
     }
 
+    def frame() {
+        def pins = pins()
+        pins == 0 ? [10] : [pins, 10-pins]
+    }
+
 }
