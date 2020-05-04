@@ -1,5 +1,6 @@
 package com.dispassionproject.gutterball.api;
 
+import com.dispassionproject.gutterball.exception.GamePlayException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Builder;
@@ -24,6 +25,13 @@ public class Game {
     private int currentFrame = 1;
     @Builder.Default
     private int nextPlayer = 1;
+
+    public Player getPlayer(final int playerNo) {
+        if (playerNo < 1 || playerNo > players.size()) {
+            throw new GamePlayException(this, String.format("Player %d not found", playerNo));
+        }
+        return players.get(playerNo - 1);
+    }
 
     public String dumpGameState() {
         return String.format(
