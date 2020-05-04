@@ -103,6 +103,9 @@ public class GameController {
         if (game.getStatus() == GameStatus.COMPLETED) {
             throw new GameSetupException(game, "Cannot bowl a game that has been completed");
         }
+        if (pins < 0 || pins > 10) {
+            throw new GamePlayException(game, String.format("%d is an invalid number of pins", pins));
+        }
         int playerNo = game.getNextPlayer();
         Player player = game.getPlayer(playerNo);
         if (player == null) {
