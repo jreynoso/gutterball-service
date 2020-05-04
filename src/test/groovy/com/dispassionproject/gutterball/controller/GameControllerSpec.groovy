@@ -246,6 +246,22 @@ class GameControllerSpec extends BaseIntSpec {
         noExceptionThrown()
     }
 
+    @Unroll
+    def "should 403 when bowling #illegalPinCount pins"() {
+        given:
+        def game = setupAndStartGame()
+        def playerOne = game.getPlayer(1)
+
+        when:
+        bowl(game.id, playerOne.id, illegalPinCount, status().isForbidden())
+
+        then:
+        noExceptionThrown()
+
+        where:
+        illegalPinCount << [-1, 11]
+    }
+
     def setupPlayableGame(int playerCount = 1) {
         def game = createGame()
         def playerNames = aRandom.playerNameSet(playerCount)
