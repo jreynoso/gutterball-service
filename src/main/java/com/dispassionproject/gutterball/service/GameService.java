@@ -36,12 +36,8 @@ public class GameService {
 
     public Game startGame(final UUID id) {
         final Game game = gameRepository.fetch(id);
-        if (game == null) {
-            throw new GameNotFoundException(id, "Unknown game cannot be started");
-        }
-        if (game.getStatus() != GameStatus.READY) {
-            throw new GameSetupException(game, "Game cannot be started");
-        }
+        validateStartGame(id, game);
+
         game.setStatus(GameStatus.STARTED);
         game.setNextPlayer(1);
         gameRepository.save(game);
@@ -50,21 +46,8 @@ public class GameService {
 
     public Player createPlayer(final UUID id, final String playerName) {
         final Game game = gameRepository.fetch(id);
-        if (game == null) {
-            throw new GameNotFoundException(id, "Player cannot be created for unknown game");
-        }
-        if (game.getStatus() == GameStatus.STARTED) {
-            throw new GamePlayException(game, "Game has already started");
-        }
-        if (game.getStatus() == GameStatus.COMPLETED) {
-            throw new GamePlayException(game, "Game is over");
-        }
-        if (game.getPlayers().size() == 4) {
-            throw new GameSetupException(game, "Game is full");
-        }
-        if (game.getPlayers().stream().anyMatch(player1 -> player1.getName().equals(playerName))) {
-            throw new GameSetupException(game, String.format("Player %s already exists", playerName));
-        }
+        validateCreatePlayer(id, playerName, game);
+
         final Player player = Player.builder()
                 .name(playerName)
                 .build();
@@ -78,26 +61,11 @@ public class GameService {
 
     public Game bowl(final UUID id, final UUID playerId, final int pins) {
         final Game game = gameRepository.fetch(id);
-        if (game == null) {
-            throw new GameNotFoundException(id);
-        }
-        if (game.getStatus() == GameStatus.PENDING || game.getStatus() == GameStatus.READY) {
-            throw new GameSetupException(game, "Cannot bowl a game that has not started");
-        }
-        if (game.getStatus() == GameStatus.COMPLETED) {
-            throw new GameSetupException(game, "Cannot bowl a game that has been completed");
-        }
-        if (pins < 0 || pins > 10) {
-            throw new GamePlayException(game, String.format("%d is an invalid number of pins", pins));
-        }
+        validateGame(id, pins, game);
+        validatePins(pins, game);
         int playerNo = game.getNextPlayer();
         Player player = game.getPlayer(playerNo);
-        if (player == null) {
-            throw new UnexpectedServiceException(game, "Next player not found");
-        }
-        if (!player.getId().equals(playerId)) {
-            throw new GamePlayException(game, String.format("It is not playerId=%s's turn", playerId));
-        }
+        validatePlayer(playerId, game, player);
 
         // update frame
         final int currentFrameNo = game.getCurrentFrame();
@@ -125,6 +93,60 @@ public class GameService {
         }
         gameRepository.save(game);
         return game;
+    }
+
+    private void validateStartGame(final UUID id, final Game game) {
+        if (game == null) {
+            throw new GameNotFoundException(id, "Unknown game cannot be started");
+        }
+        if (game.getStatus() != GameStatus.READY) {
+            throw new GameSetupException(game, "Game cannot be started");
+        }
+    }
+
+    private void validateCreatePlayer(final UUID id, final String playerName, final Game game) {
+        if (game == null) {
+            throw new GameNotFoundException(id, "Player cannot be created for unknown game");
+        }
+        if (game.getStatus() == GameStatus.STARTED) {
+            throw new GamePlayException(game, "Game has already started");
+        }
+        if (game.getStatus() == GameStatus.COMPLETED) {
+            throw new GamePlayException(game, "Game is over");
+        }
+        if (game.getPlayers().size() == 4) {
+            throw new GameSetupException(game, "Game is full");
+        }
+        if (game.getPlayers().stream().anyMatch(player1 -> player1.getName().equals(playerName))) {
+            throw new GameSetupException(game, String.format("Player %s already exists", playerName));
+        }
+    }
+
+    private void validateGame(final UUID id, final int pins, final Game game) {
+        if (game == null) {
+            throw new GameNotFoundException(id);
+        }
+        if (game.getStatus() == GameStatus.PENDING || game.getStatus() == GameStatus.READY) {
+            throw new GameSetupException(game, "Cannot bowl a game that has not started");
+        }
+        if (game.getStatus() == GameStatus.COMPLETED) {
+            throw new GameSetupException(game, "Cannot bowl a game that has been completed");
+        }
+    }
+
+    private void validatePlayer(final UUID playerId, final Game game, final Player player) {
+        if (player == null) {
+            throw new UnexpectedServiceException(game, "Next player not found");
+        }
+        if (!player.getId().equals(playerId)) {
+            throw new GamePlayException(game, String.format("It is not playerId=%s's turn", playerId));
+        }
+    }
+
+    private void validatePins(final int pins, final Game game) {
+        if (pins < 0 || pins > 10) {
+            throw new GamePlayException(game, String.format("%d is an invalid number of pins", pins));
+        }
     }
 
 }
