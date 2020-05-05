@@ -58,7 +58,7 @@ public class BowlingService {
                 }
             } else if (frame.getType() == FrameType.SPARE && nextFrame1 != null) {
                 finalizeSpare(frame, nextFrame1.getPins(1));
-            } else if (frame.getType() == FrameType.NORMAL) {
+            } else if (frame.getType() == FrameType.STANDARD) {
                 finalizeFrame(frame);
             }
         }

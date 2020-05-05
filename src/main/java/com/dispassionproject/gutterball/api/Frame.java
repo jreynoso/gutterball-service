@@ -46,7 +46,7 @@ public class Frame {
     public boolean isComplete() {
         int rollCount = rolls.size();
         switch (getType()) {
-            case NORMAL:
+            case STANDARD:
                 return rollCount == 2;
             case SPARE:
                 return number == 10 ? rollCount == 3 : rollCount == 2;
@@ -69,7 +69,7 @@ public class Frame {
         } else if (rollCount > 1 && getPins(1) + getPins(2) == 10) {
             return FrameType.SPARE;
         } else {
-            return FrameType.NORMAL;
+            return FrameType.STANDARD;
         }
     }
 

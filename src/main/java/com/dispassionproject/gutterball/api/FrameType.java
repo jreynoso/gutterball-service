@@ -2,7 +2,7 @@ package com.dispassionproject.gutterball.api;
 
 public enum FrameType {
 
-    NORMAL,
+    STANDARD,
     SPARE,
     STRIKE
 
