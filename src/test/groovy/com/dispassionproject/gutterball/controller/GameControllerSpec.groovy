@@ -184,6 +184,7 @@ class GameControllerSpec extends BaseIntSpec {
         description                          | rolls                           || expectedStatus       | expectedScore | expectedCurrentFrame
         "a half frame"                       | [aRandom.pins(9)]               || GameStatus.STARTED   | 0             | 1
         "a gutterball frame"                 | frames(1, 0)                    || GameStatus.STARTED   | 0             | 2
+        "a 3/ then a _1 frame"               | [3, 7, 0, 1]                    || GameStatus.STARTED   | 11            | 3
         "a 3/ then a 1_ frame"               | [3, 7, 1, 0]                    || GameStatus.STARTED   | 12            | 3
         "a X, then a 3/ and a 1_ frame"      | [10, 3, 7, 1, 0]                || GameStatus.STARTED   | 32            | 4
         "3 consecutive Xs"                   | strikes(3)                      || GameStatus.STARTED   | 30            | 4
