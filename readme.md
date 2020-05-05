@@ -44,7 +44,6 @@ POST /game/{gameId}/player/{playerId}/bowl
 ```
 
 ### Roadmap
-- refactor to service
 - add persistence
 - add logging
 - add docs
