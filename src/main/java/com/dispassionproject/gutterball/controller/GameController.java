@@ -1,5 +1,7 @@
 package com.dispassionproject.gutterball.controller;
 
+import com.dispassionproject.gutterball.api.BowlRequest;
+import com.dispassionproject.gutterball.api.CreatePlayerRequest;
 import com.dispassionproject.gutterball.api.Game;
 import com.dispassionproject.gutterball.api.Player;
 import com.dispassionproject.gutterball.service.GameService;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -21,34 +24,41 @@ public class GameController {
     private final GameService gameService;
 
     @ResponseStatus(code = HttpStatus.CREATED)
-    @PostMapping("/game")
+    @PostMapping(path = "/game", produces = "application/json" )
     public Game createGame() {
         return gameService.createGame();
     }
 
-    @GetMapping("/game/{id}")
+    @GetMapping(path = "/game/{id}", produces = "application/json")
     public Game getGame(@PathVariable final UUID id) {
         return gameService.getGame(id);
     }
 
-    @PostMapping("/game/{id}/start")
+    @PostMapping(value = "/game/{id}/start", produces = "application/json")
     public Game startGame(@PathVariable final UUID id) {
         return gameService.startGame(id);
     }
 
     @ResponseStatus(code = HttpStatus.CREATED)
-    @PostMapping("/game/{id}/player")
-    public Player createPlayer(@PathVariable final UUID id, @RequestBody final String playerName) {
-        return gameService.createPlayer(id, playerName);
+    @PostMapping(path = "/game/{id}/player", consumes = "application/json", produces = "application/json")
+    public Player createPlayer(
+            @PathVariable final UUID id,
+            @Valid @RequestBody final CreatePlayerRequest createPlayerRequest
+    ) {
+        return gameService.createPlayer(id, createPlayerRequest.getName());
     }
 
-    @PostMapping("/game/{id}/player/{playerId}/bowl")
+    @PostMapping(
+            path = "/game/{id}/player/{playerId}/bowl",
+            consumes = "application/json",
+            produces = "application/json"
+    )
     public Game bowl(
             @PathVariable final UUID id,
             @PathVariable final UUID playerId,
-            @RequestBody final Integer pins
+            @Valid @RequestBody final BowlRequest bowlRequest
     ) {
-        return gameService.bowl(id, playerId, pins);
+        return gameService.bowl(id, playerId, bowlRequest.getPins());
     }
 
 }

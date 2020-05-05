@@ -62,7 +62,6 @@ public class GameService {
     public Game bowl(final UUID id, final UUID playerId, final int pins) {
         final Game game = gameRepository.fetch(id);
         validateGame(id, game);
-        validatePins(pins, game);
         int playerNo = game.getNextPlayer();
         Player player = game.getPlayer(playerNo);
         validatePlayer(playerId, game, player);
@@ -117,12 +116,6 @@ public class GameService {
         }
         if (!player.getId().equals(playerId)) {
             throw new GamePlayException(game, String.format("It is not playerId=%s's turn", playerId));
-        }
-    }
-
-    private void validatePins(final int pins, final Game game) {
-        if (pins < 0 || pins > 10) {
-            throw new GamePlayException(game, String.format("%d is an invalid number of pins", pins));
         }
     }
 

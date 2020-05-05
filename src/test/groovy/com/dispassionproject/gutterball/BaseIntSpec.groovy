@@ -1,5 +1,7 @@
 package com.dispassionproject.gutterball
 
+import com.dispassionproject.gutterball.api.BowlRequest
+import com.dispassionproject.gutterball.api.CreatePlayerRequest
 import com.dispassionproject.gutterball.api.Game
 import com.dispassionproject.gutterball.api.Player
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -41,9 +43,10 @@ class BaseIntSpec extends BaseSpec {
     }
 
     def createPlayer(UUID gameId, String playerName, ResultMatcher expectedStatus = status().isCreated()) {
+        def requestBody = CreatePlayerRequest.builder().name(playerName).build()
         MvcResult result = mvc.perform(post("/game/${gameId}/player")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(playerName)
+                .content(toBytes(requestBody))
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(expectedStatus)
@@ -73,9 +76,10 @@ class BaseIntSpec extends BaseSpec {
     }
 
     def bowl(UUID gameId, UUID playerId, int pins, ResultMatcher expectedStatus = status().isOk()) {
+        def requestBody = BowlRequest.builder().pins(pins).build()
         MvcResult result = mvc.perform(post("/game/${gameId}/player/${playerId}/bowl")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(String.valueOf(pins))
+                .content(toBytes(requestBody))
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(expectedStatus)
@@ -90,6 +94,10 @@ class BaseIntSpec extends BaseSpec {
 
     def responseToPlayer(MockHttpServletResponse response) {
         isSuccessResponse(response) ? objectMapper.readValue(response.getContentAsByteArray(), Player) : null
+    }
+
+    def toBytes(Object object) {
+        return objectMapper.writeValueAsBytes(object)
     }
 
     static def isSuccessResponse(MockHttpServletResponse response) {

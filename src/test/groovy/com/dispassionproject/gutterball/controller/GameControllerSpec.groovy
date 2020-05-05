@@ -247,13 +247,13 @@ class GameControllerSpec extends BaseIntSpec {
     }
 
     @Unroll
-    def "should 403 when bowling #illegalPinCount pins"() {
+    def "should 400 when bowling #illegalPinCount pins"() {
         given:
         def game = setupAndStartGame()
         def playerOne = game.getPlayer(1)
 
         when:
-        bowl(game.id, playerOne.id, illegalPinCount, status().isForbidden())
+        bowl(game.id, playerOne.id, illegalPinCount, status().isBadRequest())
 
         then:
         noExceptionThrown()
