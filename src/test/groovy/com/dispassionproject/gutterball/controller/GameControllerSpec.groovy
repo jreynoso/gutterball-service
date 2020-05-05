@@ -140,6 +140,29 @@ class GameControllerSpec extends BaseIntSpec {
         noExceptionThrown()
     }
 
+    def "should allow players to bowl frames in turn"() {
+        given:
+        def game = setupAndStartGame(2)
+        def playerOne = game.getPlayer(1)
+        def playerTwo = game.getPlayer(2)
+
+        expect:
+        game.nextPlayer == 1
+
+        when:
+        bowl(game.id, playerOne.id, 6)
+        game = bowl(game.id, playerOne.id, 2)
+
+        then:
+        game.nextPlayer == 2
+
+        when:
+        game = bowl(game.id, playerTwo.id, 10)
+
+        then:
+        game.nextPlayer == 1
+    }
+
     @Unroll
     def "should bowl #description and expect score"() {
         given:
@@ -188,29 +211,6 @@ class GameControllerSpec extends BaseIntSpec {
         "10 consecutive Xs, then a 3/ frame" | strikes(10) + [3, 7]            || GameStatus.COMPLETED | 283           | 10
         "10 consecutive Xs, then a _1 frame" | strikes(10) + [0, 1]            || GameStatus.COMPLETED | 271           | 10
         "10 consecutive Xs, then a 1_ frame" | strikes(10) + [1, 0]            || GameStatus.COMPLETED | 272           | 10
-    }
-
-    def "should allow players to bowl frames in turn"() {
-        given:
-        def game = setupAndStartGame(2)
-        def playerOne = game.getPlayer(1)
-        def playerTwo = game.getPlayer(2)
-
-        expect:
-        game.nextPlayer == 1
-
-        when:
-        bowl(game.id, playerOne.id, 6)
-        game = bowl(game.id, playerOne.id, 2)
-
-        then:
-        game.nextPlayer == 2
-
-        when:
-        game = bowl(game.id, playerTwo.id, 10)
-
-        then:
-        game.nextPlayer == 1
     }
 
     def "should 400 when bowling in a game that hasn't started"() {
