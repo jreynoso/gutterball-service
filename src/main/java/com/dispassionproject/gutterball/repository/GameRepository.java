@@ -13,7 +13,7 @@ public class GameRepository {
 
     public GameRepository(final JsonDBTemplate jsonDBTemplate) {
         this.jsonDBTemplate = jsonDBTemplate;
-        if (!jsonDBTemplate.collectionExists("games")) {
+        if (!jsonDBTemplate.collectionExists(Game.class)) {
             jsonDBTemplate.createCollection(Game.class);
         }
     }
@@ -24,6 +24,13 @@ public class GameRepository {
 
     public Game fetch(final UUID id) {
         return jsonDBTemplate.findById(id, Game.class);
+    }
+
+    public void reset() {
+        if (jsonDBTemplate.collectionExists(Game.class)) {
+            jsonDBTemplate.dropCollection(Game.class);
+        }
+        jsonDBTemplate.createCollection(Game.class);
     }
 
 }

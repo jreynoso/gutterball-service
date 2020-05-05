@@ -4,6 +4,7 @@ import com.dispassionproject.gutterball.api.BowlRequest
 import com.dispassionproject.gutterball.api.CreatePlayerRequest
 import com.dispassionproject.gutterball.api.Game
 import com.dispassionproject.gutterball.api.Player
+import com.dispassionproject.gutterball.repository.GameRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -14,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultMatcher
+import spock.lang.Shared
 
 import javax.servlet.http.HttpServletResponse
 
@@ -27,10 +29,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("integration-test")
 class BaseIntSpec extends BaseSpec {
 
+    @Shared
+    boolean resetDatabase = true
+    @Autowired
+    GameRepository gameRepository
+
     @Autowired
     ObjectMapper objectMapper
     @Autowired
     MockMvc mvc
+
+    def setup() {
+        if (resetDatabase) {
+            gameRepository.reset()
+            resetDatabase = false;
+        }
+    }
 
     def createGame(ResultMatcher expectedStatus = status().isCreated()) {
         MvcResult result = mvc.perform(post("/game")
