@@ -19,6 +19,7 @@ import java.util.UUID;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final BowlingService bowlingService;
 
     public Game createGame() {
         Game game = Game.builder().build();
@@ -67,32 +68,9 @@ public class GameService {
         Player player = game.getPlayer(playerNo);
         validatePlayer(playerId, game, player);
 
-        // update frame
-        final int currentFrameNo = game.getCurrentFrame();
-        final Frame currentFrame = player.getFrame(currentFrameNo);
-        currentFrame.addRoll(pins);
-
-        // score
-        player.updateScore(currentFrameNo);
-
-        // Post roll stuff
-        if (currentFrame.isComplete()) {
-            int numPlayers = game.getPlayers().size();
-            boolean isLastPlayer = playerNo == numPlayers;
-            if (isLastPlayer) {
-                game.setNextPlayer(1);
-            } else {
-                game.setNextPlayer(playerNo + 1);
-            }
-            boolean isLastFrame = currentFrameNo == 10;
-            if (!isLastFrame) {
-                game.setCurrentFrame(currentFrameNo + 1);
-            } else if (isLastPlayer) {
-                game.setStatus(GameStatus.COMPLETED);
-            }
-        }
-        gameRepository.save(game);
-        return game;
+        final Game updatedGame = bowlingService.bowl(game, player, pins);
+        gameRepository.save(updatedGame);
+        return updatedGame;
     }
 
     private void validateStartGame(final UUID id, final Game game) {

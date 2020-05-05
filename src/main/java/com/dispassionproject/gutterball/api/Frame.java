@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ public class Frame {
     private final int number;
     @Builder.Default
     private final List<Integer> rolls = new ArrayList<>();
+    @Setter
     @Builder.Default
     private Integer score = null;
     @JsonIgnore
@@ -44,17 +46,9 @@ public class Frame {
         return rolls.get(rollNo - 1);
     }
 
-    public void finalizeFrame() {
-        int extraRoll =  rolls.size() == 3 ? getPins(3) : 0;
-        score = getPins(1) + getPins(2) + extraRoll;
-    }
-
-    public void finalizeSpare(final int nextPins) {
-        score = 10 + nextPins;
-    }
-
-    public void finalizeStrike(final int nextPins1, final int nextPins2) {
-        score = 10 + nextPins1 + nextPins2;
+    @JsonIgnore
+    public boolean isNotScored() {
+        return score == null;
     }
 
     @JsonIgnore
@@ -72,8 +66,8 @@ public class Frame {
     }
 
     @JsonIgnore
-    public boolean isNotScored() {
-        return score == null;
+    public int getRollCount() {
+        return rolls.size();
     }
 
 }
