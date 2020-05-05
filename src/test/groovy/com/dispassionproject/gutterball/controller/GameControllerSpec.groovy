@@ -262,6 +262,21 @@ class GameControllerSpec extends BaseIntSpec {
         illegalPinCount << [-1, 11]
     }
 
+    def "should 403 when bowling more than 10 pins in a standard frame"() {
+        given:
+        def game = setupAndStartGame()
+        def playerOne = game.getPlayer(1)
+
+        and:
+        bowl(game.id, playerOne.id, 6)
+
+        when:
+        bowl(game.id, playerOne.id, 5, status().isForbidden())
+
+        then:
+        noExceptionThrown()
+    }
+
     def setupPlayableGame(int playerCount = 1) {
         def game = createGame()
         def playerNames = aRandom.playerNameSet(playerCount)
