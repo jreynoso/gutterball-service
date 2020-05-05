@@ -92,7 +92,7 @@ class BaseIntSpec extends BaseSpec {
         isSuccessResponse(response) ? objectMapper.readValue(response.getContentAsByteArray(), Player) : null
     }
 
-    def isSuccessResponse(MockHttpServletResponse response) {
+    static def isSuccessResponse(MockHttpServletResponse response) {
         response.status == HttpServletResponse.SC_OK || response.status == HttpServletResponse.SC_CREATED
     }
 

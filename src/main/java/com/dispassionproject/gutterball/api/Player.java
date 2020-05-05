@@ -19,8 +19,7 @@ public class Player {
     @Builder.Default
     private final UUID id = UUID.randomUUID();
     private final String name;
-    @Builder.Default
-    private int score = 0;
+    private int score;
     @Builder.Default
     private final List<Frame> frames = new ArrayList<>();
 

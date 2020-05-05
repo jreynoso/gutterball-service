@@ -19,8 +19,7 @@ public class Frame {
     @Builder.Default
     private final List<Integer> rolls = new ArrayList<>();
     @Setter
-    @Builder.Default
-    private Integer score = null;
+    private Integer score;
 
     public void addRoll(int pins) {
         int maxRolls = number == 10 ? 3 : 2;
