@@ -5,6 +5,7 @@ import com.dispassionproject.gutterball.api.FrameType;
 import com.dispassionproject.gutterball.api.Game;
 import com.dispassionproject.gutterball.api.GameStatus;
 import com.dispassionproject.gutterball.api.Player;
+import com.dispassionproject.gutterball.exception.GamePlayException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,16 +13,17 @@ public class BowlingService {
 
     Game bowl(final Game game, final Player player, final int pins) {
         final int currentFrameNo = game.getCurrentFrame();
-
-        final Frame currentFrame = updateFrameForPlayer(currentFrameNo, player, pins);
+        final Frame currentFrame = player.getFrame(currentFrameNo);
+        validateRoll(game, currentFrame, pins);
+        currentFrame.addRoll(pins);
         updateScoresForPlayer(currentFrame, player);
         return updateGameState(game, currentFrame);
     }
 
-    private Frame updateFrameForPlayer(final int frameNo, final Player player, final int pins) {
-        final Frame currentFrame = player.getFrame(frameNo);
-        currentFrame.addRoll(pins);
-        return currentFrame;
+    private void validateRoll(final Game game, final Frame frame, final int pins) {
+        if (frame.getRollCount() == 1 && frame.getPins(1) < 10 && frame.getPins(1) + pins > 10) {
+            throw new GamePlayException(game, String.format("Cannot roll %d pins", pins));
+        }
     }
 
     private void updateScoresForPlayer(final Frame frame, final Player player) {
