@@ -19,11 +19,13 @@ repositories {
 
 def fakerVersion = "1.0.2"
 def groovyVersion = "2.5.8"
+def jsonDbVersion = "1.0.115"
 def spockVersion = "2.0-M1-groovy-2.5"
 
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "io.jsondb:jsondb-core:${jsonDbVersion}-j8"
 
     testImplementation "com.github.javafaker:javafaker:${fakerVersion}"
     testImplementation("org.springframework.boot:spring-boot-starter-test") {

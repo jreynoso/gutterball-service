@@ -3,27 +3,26 @@ package com.dispassionproject.gutterball.api;
 import com.dispassionproject.gutterball.exception.GamePlayException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import lombok.Builder;
+import io.jsondb.annotation.Document;
+import io.jsondb.annotation.Id;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
+@NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
+@Document(collection = "games", schemaVersion= "1.0")
 public class Game {
 
-    @Builder.Default
+    @Id
     private UUID id = UUID.randomUUID();
-    @Builder.Default
     private GameStatus status = GameStatus.PENDING;
-    @Builder.Default
     private List<Player> players = new ArrayList<>();
-    @Builder.Default
     private int currentFrame = 1;
-    @Builder.Default
     private int nextPlayer = 1;
 
     public Player getPlayer(final int playerNo) {

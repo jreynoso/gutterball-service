@@ -21,19 +21,11 @@ public class Frame {
     @Setter
     @Builder.Default
     private Integer score = null;
-    @JsonIgnore
-    @Builder.Default
-    private FrameType type = FrameType.NORMAL;
 
     public void addRoll(int pins) {
         int maxRolls = number == 10 ? 3 : 2;
         if (rolls.size() < maxRolls) {
             rolls.add(pins);
-            if (pins == 10) {
-                type = FrameType.STRIKE;
-            } else if (rolls.size() == 2 && getPins(1) + getPins(2) == 10) {
-                type = FrameType.SPARE;
-            }
         } else {
             throw new UnexpectedServiceException("Cannot add another roll to current frame.");
         }
@@ -54,7 +46,7 @@ public class Frame {
     @JsonIgnore
     public boolean isComplete() {
         int rollCount = rolls.size();
-        switch (type) {
+        switch (getType()) {
             case NORMAL:
                 return rollCount == 2;
             case SPARE:
@@ -68,6 +60,18 @@ public class Frame {
     @JsonIgnore
     public int getRollCount() {
         return rolls.size();
+    }
+
+    @JsonIgnore
+    public FrameType getType() {
+        int rollCount = getRollCount();
+        if (rollCount > 0 && getPins(1) == 10) {
+            return FrameType.STRIKE;
+        } else if (rollCount > 1 && getPins(1) + getPins(2) == 10) {
+            return FrameType.SPARE;
+        } else {
+            return FrameType.NORMAL;
+        }
     }
 
 }

@@ -1,22 +1,29 @@
 package com.dispassionproject.gutterball.repository;
 
 import com.dispassionproject.gutterball.api.Game;
+import io.jsondb.JsonDBTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 @Component
 public class GameRepository {
 
-    private final HashMap<UUID, Game> games = new HashMap<>();
+    private final JsonDBTemplate jsonDBTemplate;
 
-    public synchronized void save(final Game game) {
-        games.put(game.getId(), game);
+    public GameRepository(final JsonDBTemplate jsonDBTemplate) {
+        this.jsonDBTemplate = jsonDBTemplate;
+        if (!jsonDBTemplate.collectionExists("games")) {
+            jsonDBTemplate.createCollection(Game.class);
+        }
     }
 
-    public synchronized Game fetch(final UUID id) {
-        return games.get(id);
+    public void save(final Game game) {
+        jsonDBTemplate.upsert(game);
+    }
+
+    public Game fetch(final UUID id) {
+        return jsonDBTemplate.findById(id, Game.class);
     }
 
 }

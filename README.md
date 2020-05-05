@@ -44,6 +44,5 @@ POST /game/{gameId}/player/{playerId}/bowl
 ```
 
 ### Roadmap
-- add persistence
 - add logging
 - add docs

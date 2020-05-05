@@ -31,4 +31,4 @@ out/
 .vscode/
 
 ### App Specific ###
-application-local.yml
+db/

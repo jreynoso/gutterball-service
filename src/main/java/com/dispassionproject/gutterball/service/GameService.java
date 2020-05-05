@@ -1,6 +1,5 @@
 package com.dispassionproject.gutterball.service;
 
-import com.dispassionproject.gutterball.api.Frame;
 import com.dispassionproject.gutterball.api.Game;
 import com.dispassionproject.gutterball.api.GameStatus;
 import com.dispassionproject.gutterball.api.Player;
@@ -22,7 +21,7 @@ public class GameService {
     private final BowlingService bowlingService;
 
     public Game createGame() {
-        Game game = Game.builder().build();
+        Game game = new Game();
         gameRepository.save(game);
         return game;
     }
@@ -62,7 +61,7 @@ public class GameService {
 
     public Game bowl(final UUID id, final UUID playerId, final int pins) {
         final Game game = gameRepository.fetch(id);
-        validateGame(id, pins, game);
+        validateGame(id, game);
         validatePins(pins, game);
         int playerNo = game.getNextPlayer();
         Player player = game.getPlayer(playerNo);
@@ -100,7 +99,7 @@ public class GameService {
         }
     }
 
-    private void validateGame(final UUID id, final int pins, final Game game) {
+    private void validateGame(final UUID id, final Game game) {
         if (game == null) {
             throw new GameNotFoundException(id);
         }
