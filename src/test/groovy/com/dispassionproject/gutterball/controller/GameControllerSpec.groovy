@@ -217,6 +217,24 @@ class GameControllerSpec extends BaseIntSpec {
         "10 consecutive Xs, then a 1_ frame" | strikes(10) + [1, 0]            || GameStatus.COMPLETED | 272           | 10
     }
 
+    def "should handle final frame correctly"() {
+        given:
+        def game = setupAndStartGame()
+        def playerOne = game.getPlayer(1)
+        def rolls = strikes(10) + [1]
+
+        and:
+        rolls.each {
+            bowl(game.id, playerOne.id, it as int)
+        }
+
+        when:
+        bowl(game.id, playerOne.id, 10, status().isForbidden())
+
+        then:
+        noExceptionThrown()
+    }
+
     def "should 400 when bowling in a game that hasn't started"() {
         given:
         def game = setupPlayableGame()
