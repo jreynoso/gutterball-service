@@ -1,3 +1,6 @@
 server.servlet.context-path: /api/v1
 
 json.db.file.dir: db/local
+
+logging.level:
+  org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
