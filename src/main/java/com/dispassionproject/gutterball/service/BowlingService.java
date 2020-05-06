@@ -96,16 +96,17 @@ public class BowlingService {
             final int playerNo = game.getNextPlayer();
             int numPlayers = game.getPlayers().size();
             boolean isLastPlayer = playerNo == numPlayers;
+
             if (isLastPlayer) {
                 game.setNextPlayer(1);
+                boolean isLastFrame = frameNo == 10;
+                if (isLastFrame) {
+                    game.setStatus(GameStatus.COMPLETED);
+                } else {
+                    game.setCurrentFrame(frameNo + 1);
+                }
             } else {
                 game.setNextPlayer(playerNo + 1);
-            }
-            boolean isLastFrame = frameNo == 10;
-            if (!isLastFrame) {
-                game.setCurrentFrame(frameNo + 1);
-            } else if (isLastPlayer) {
-                game.setStatus(GameStatus.COMPLETED);
             }
         }
         return game;
