@@ -22,7 +22,7 @@ public class Frame {
     private Integer score;
 
     public void addRoll(int pins) {
-        int maxRolls = number == 10 ? 3 : 2;
+        int maxRolls = isLastFrame() ? 3 : 2;
         if (rolls.size() < maxRolls) {
             rolls.add(pins);
         } else {
@@ -49,9 +49,9 @@ public class Frame {
             case STANDARD:
                 return rollCount == 2;
             case SPARE:
-                return number == 10 ? rollCount == 3 : rollCount == 2;
+                return isLastFrame() ? rollCount == 3 : rollCount == 2;
             case STRIKE:
-                return number == 10 ? rollCount == 3 : rollCount == 1;
+                return isLastFrame() ? rollCount == 3 : rollCount == 1;
         }
         return false;
     }
@@ -71,6 +71,11 @@ public class Frame {
         } else {
             return FrameType.STANDARD;
         }
+    }
+
+    @JsonIgnore
+    public boolean isLastFrame() {
+        return number == 10;
     }
 
 }

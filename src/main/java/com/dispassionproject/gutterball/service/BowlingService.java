@@ -21,15 +21,27 @@ public class BowlingService {
     }
 
     private void validateRoll(final Game game, final Frame frame, final int pins) {
-        if (frame.getRollCount() == 1 && frame.getPins(1) < 10 && frame.getPins(1) + pins > 10) {
+        boolean isLastFrame = frame.isLastFrame();
+
+        if (isLastFrame && frame.getType() == FrameType.STRIKE && isInvalidRollForFrame(frame, 2, pins)) {
+            throw new GamePlayException(game, String.format("Cannot roll %d pins", pins));
+        } else if (isInvalidRollForFrame(frame, 1, pins)) {
             throw new GamePlayException(game, String.format("Cannot roll %d pins", pins));
         }
     }
 
+    private boolean isInvalidRollForFrame(final Frame frame, final int rollToCheck, final int pins) {
+        return frame.getRollCount() == rollToCheck && isInvalidOpenFrame(frame.getPins(rollToCheck), pins);
+    }
+
+    private boolean isInvalidOpenFrame(int firstRoll, int secondRoll) {
+        return firstRoll < 10 && firstRoll + secondRoll > 10;
+    }
+
     private void updateScoresForPlayer(final Frame frame, final Player player) {
         final int frameNo = frame.getNumber();
-        if (frameNo == 10) {
-            scoreFinalFrameForPlayer(player);
+        if (frame.isLastFrame()) {
+            scoreLastFrameForPlayer(player);
         }
         else {
             Frame prevFrame = null;
@@ -66,26 +78,26 @@ public class BowlingService {
         }
     }
 
-    private void scoreFinalFrameForPlayer(final Player player) {
+    private void scoreLastFrameForPlayer(final Player player) {
         final Frame eighthFrame = player.getFrame(8);
         final Frame ninthFrame = player.getFrame(9);
-        final Frame finalFrame = player.getFrame(10);
-        final int rollCount = finalFrame.getRolls().size();
+        final Frame lastFrame = player.getFrame(10);
+        final int rollCount = lastFrame.getRolls().size();
 
         if (eighthFrame.isNotScored()) {
             if (ninthFrame.isNotScored() && ninthFrame.getType() == FrameType.STRIKE) {
-                finalizeStrike(eighthFrame, 10, finalFrame.getPins(1));
+                finalizeStrike(eighthFrame, 10, lastFrame.getPins(1));
             }
         }
         if (ninthFrame.isNotScored()) {
             if (ninthFrame.getType() == FrameType.SPARE) {
-                finalizeSpare(ninthFrame, finalFrame.getPins(1));
+                finalizeSpare(ninthFrame, lastFrame.getPins(1));
             } else if (rollCount == 2) {
-                finalizeStrike(ninthFrame, finalFrame.getPins(1), finalFrame.getPins(2));
+                finalizeStrike(ninthFrame, lastFrame.getPins(1), lastFrame.getPins(2));
             }
         }
-        if (finalFrame.isComplete()) {
-            finalizeFrame(finalFrame);
+        if (lastFrame.isComplete()) {
+            finalizeFrame(lastFrame);
         }
 
     }
