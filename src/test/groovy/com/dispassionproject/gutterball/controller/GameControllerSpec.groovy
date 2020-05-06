@@ -140,7 +140,7 @@ class GameControllerSpec extends BaseIntSpec {
         noExceptionThrown()
     }
 
-    def "should allow players to bowl frames in turn"() {
+    def "should allow players to bowl frames in turn and advance to next frame after last player bowls"() {
         given:
         def game = setupAndStartGame(2)
         def playerOne = game.getPlayer(1)
@@ -148,6 +148,7 @@ class GameControllerSpec extends BaseIntSpec {
 
         expect:
         game.nextPlayer == 1
+        game.currentFrame == 1
 
         when:
         bowl(game.id, playerOne.id, 6)
@@ -155,12 +156,14 @@ class GameControllerSpec extends BaseIntSpec {
 
         then:
         game.nextPlayer == 2
+        game.currentFrame == 1
 
         when:
         game = bowl(game.id, playerTwo.id, 10)
 
         then:
         game.nextPlayer == 1
+        game.currentFrame == 2
     }
 
     @Unroll
