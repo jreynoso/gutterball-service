@@ -1,0 +1,99 @@
+#### CREATE GAME
+POST {{host}}/api/v1/game
+Content-Type: application/json
+
+### Response 201:
+# {
+#   "id": "6944db33-3575-487f-bcc7-b70e59b42b36",
+#   "status": "pending",
+#   "players": [],
+#   "currentFrame": 1,
+#   "nextPlayer": 1
+# }
+
+
+#### GET GAME
+GET {{host}}/api/v1/game/{{$uuid}}
+
+### Response 200:
+# {
+#   "id": "6944db33-3575-487f-bcc7-b70e59b42b36",
+#   "status": "pending",
+#   "players": [],
+#   "currentFrame": 1,
+#   "nextPlayer": 1
+# }
+
+
+#### CREATE PLAYER
+POST {{host}}/api/v1/game/{{$uuid}}/player
+Content-Type: application/json
+
+{
+  "name": "Player One"
+}
+
+### Response 201:
+# {
+#   "id": "b0f965a0-a08a-41d3-a107-ae8e5cbeeed1",
+#   "name": "Player One",
+#   "score": 0,
+#   "frames": []
+# }
+### Response 404: if game id is not found
+
+
+#### START GAME
+POST {{host}}/api/v1/game/{{$uuid}}/start
+Content-Type: application/json
+
+{}
+
+### Response 200:
+# {
+#   "id": "6944db33-3575-487f-bcc7-b70e59b42b36",
+#   "status": "started",
+#   "players": [
+#     {
+#       "id": "b0f965a0-a08a-41d3-a107-ae8e5cbeeed1",
+#       "name": "Player One",
+#       "score": 0,
+#       "frames": []
+#     }
+#   ],
+#   "currentFrame": 1,
+#   "nextPlayer": 1
+# }
+
+
+#### BOWL
+POST {{host}}/api/v1/game/{{$uuid}}/player/{{$uuid}}
+Content-Type: application/json
+
+{
+  "pins": 0
+}
+
+### Response 200:
+# {
+# "id": "6944db33-3575-487f-bcc7-b70e59b42b36",
+#   "status": "started",
+#   "players": [
+#     {
+#       "id": "b0f965a0-a08a-41d3-a107-ae8e5cbeeed1",
+#       "name": "Player One",
+#       "score": 0,
+#       "frames": [
+#         {
+#           "number": 1,
+#           "rolls": [
+#             0
+#           ]
+#         }
+#       ]
+#     }
+#   ],
+#   "currentFrame": 1,
+#   "nextPlayer": 1
+# }
+### Response 400: if bowl
